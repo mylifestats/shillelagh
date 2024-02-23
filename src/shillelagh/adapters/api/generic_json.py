@@ -11,6 +11,7 @@ from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Union
 import jsonpath
 import prison
 from yarl import URL
+import re
 
 from shillelagh.adapters.base import Adapter
 from shillelagh.exceptions import ProgrammingError
@@ -69,7 +70,11 @@ class GenericJSONAPI(Adapter):
             timedelta(seconds=cache_expiration),
         )
         response = session.head(str(parsed))
-        return cls.content_type in response.headers.get("content-type", "")
+        
+        pattern = r'application\/.*json.*'
+        if re.match(pattern, response.headers.get("content-type", "")):
+            return True
+        return False
 
     @classmethod
     def parse_uri(
